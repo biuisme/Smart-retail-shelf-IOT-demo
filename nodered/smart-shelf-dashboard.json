@@ -1,390 +1,408 @@
 [
     {
-        "id": "f100000000000001",
+        "id": "2d4d0025f3444c9a",
         "type": "tab",
-        "label": "Kệ hàng thông minh",
+        "label": "Smart Shelf SV3 - FULL DEMO (MQTT + Telegram)",
         "disabled": false,
-        "info": ""
+        "info": "Giám sát thử nghiệm tích hợp cuối với topic shelf_01; KHÔNG chứa Telegram Token, KHÔNG gửi Telegram, KHÔNG thay flow nhóm hiện tại. Nút TARE gửi MQTT đến ESP32."
     },
     {
-        "id": "f100000000000002",
-        "type": "mqtt-broker",
-        "name": "HiveMQ Public",
-        "broker": "broker.hivemq.com",
-        "port": 1883,
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willPayload": "",
-        "willMsg": {},
-        "sessionExpiry": ""
-    },
-    {
-        "id": "f100000000000003",
-        "type": "ui_base",
-        "name": "Kệ hàng thông minh",
-        "hideToolbar": "false",
-        "allowSwipe": "false",
-        "lockMenu": "false",
-        "allowTempTheme": "true",
-        "dateFormat": "DD/MM/YYYY",
-        "theme": {
-            "name": "theme-custom",
-            "baseColor": "#0094CE",
-            "pageBackgroundColor": "#f2f4f7",
-            "groupBackgroundColor": "#ffffff",
-            "groupTextColor": "#0f172a",
-            "groupBorderColor": "#e2e8f0",
-            "groupBoxShadow": false,
-            "pageTitle": "Kệ hàng thông minh báo tồn kho",
-            "header": "Kệ hàng thông minh báo tồn kho",
-            "menu": "Menu"
-        },
-        "site": {
-            "name": "Kệ hàng thông minh",
-            "hideTabIcon": false
-        }
-    },
-    {
-        "id": "f100000000000004",
-        "type": "ui_tab",
-        "label": "Kệ hàng thông minh",
-        "icon": "font-awesome/fa-cubes",
-        "order": 1,
-        "disabled": false,
-        "hidden": false
-    },
-    {
-        "id": "f100000000000005",
-        "type": "ui_group",
-        "name": "Trạng thái thiết bị",
-        "tab": "f100000000000004",
-        "order": 1,
-        "disp": true,
-        "width": "6",
-        "collapse": false,
-        "className": ""
-    },
-    {
-        "id": "f100000000000006",
-        "type": "ui_group",
-        "name": "Tồn kho",
-        "tab": "f100000000000004",
-        "order": 2,
-        "disp": true,
-        "width": "6",
-        "collapse": false,
-        "className": ""
-    },
-    {
-        "id": "f100000000000007",
-        "type": "ui_group",
-        "name": "Lịch sử khối lượng",
-        "tab": "f100000000000004",
-        "order": 3,
-        "disp": true,
-        "width": "6",
-        "collapse": false,
-        "className": ""
-    },
-    {
-        "id": "f100000000000008",
-        "type": "ui_group",
-        "name": "Điều khiển",
-        "tab": "f100000000000004",
-        "order": 4,
-        "disp": true,
-        "width": "6",
-        "collapse": false,
-        "className": ""
-    },
-    {
-        "id": "f100000000000009",
+        "id": "de285963274a437f",
         "type": "mqtt in",
-        "z": "f100000000000001",
-        "name": "Telemetry ESP32",
-        "topic": "smartretail/shelves/shelf_01/telemetry",
+        "z": "2d4d0025f3444c9a",
+        "name": "Nhận Telemetry FULL DEMO",
+        "topic": "smartretail/shelves/sv3_demo/telemetry",
         "qos": "0",
-        "datatype": "json",
-        "broker": "f100000000000002",
+        "datatype": "utf8",
+        "broker": "10d143fcdfd94c49",
         "nl": false,
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 180,
-        "y": 120,
+        "x": 510,
+        "y": 260,
         "wires": [
             [
-                "f10000000000000b"
+                "6a4cd7b111f14028"
             ]
         ]
     },
     {
-        "id": "f10000000000000a",
-        "type": "mqtt in",
-        "z": "f100000000000001",
-        "name": "Status ONLINE/OFFLINE",
-        "topic": "smartretail/shelves/shelf_01/status",
-        "qos": "0",
-        "datatype": "json",
-        "broker": "f100000000000002",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 200,
-        "y": 420,
-        "wires": [
-            [
-                "f10000000000000c"
-            ]
-        ]
-    },
-    {
-        "id": "f10000000000000b",
+        "id": "6a4cd7b111f14028",
         "type": "function",
-        "z": "f100000000000001",
-        "name": "Chuẩn hoá telemetry",
-        "func": "// msg.payload đã được node MQTT parse từ JSON\nconst d = msg.payload || {};\n\n// Bỏ qua dữ liệu của thiết bị khác\nif (d.device_id && d.device_id !== 'shelf_01') {\n    return null;\n}\n\nconst weight = Number(d.weight_g);\nconst qty = Number(d.quantity);\nconst alert = String(d.alert_status || 'UNKNOWN');\n\nif (!isFinite(weight) || !isFinite(qty)) {\n    return null;\n}\n\nlet alertText = 'BÌNH THƯỜNG';\nif (alert === 'LOW_STOCK') {\n    alertText = 'TỒN KHO THẤP';\n} else if (alert === 'ERR:OBJECT') {\n    alertText = 'SAI KHỐI LƯỢNG';\n}\n\nconst timeText = new Date().toLocaleTimeString('vi-VN', { hour12: false });\n\nreturn [\n    { payload: weight },\n    { payload: qty },\n    { payload: qty + ' sản phẩm · ' + alertText + ' · ' + timeText },\n    { payload: weight, topic: d.device_id || 'shelf_01' }\n];\n",
-        "outputs": 4,
+        "z": "2d4d0025f3444c9a",
+        "name": "Chuẩn hóa Telemetry + chống spam Telegram",
+        "func": "var data=msg.payload;\nif (Buffer.isBuffer(data)) data=data.toString('utf8');\nif (typeof data==='string') {\n    if (!data.trim()) return null;\n    try { data=JSON.parse(data); }\n    catch(e) { node.warn('Telemetry: JSON khong hop le'); return null; }\n}\nif (!data || typeof data!=='object' || Array.isArray(data)) return null;\nvar allowed=['OK','LOW_STOCK','ERR:OBJECT','SENSOR_ERROR'];\nvar status=String(data.alert_status||'').trim();\nif (allowed.indexOf(status)===-1) return null;\nvar healthy=(data.sensor_ok!==false && status!=='SENSOR_ERROR');\nvar weight=Number(data.weight_g), qty=Number(data.quantity);\nif (healthy && (!Number.isFinite(weight) || !Number.isFinite(qty))) {\n    node.warn('Telemetry thieu weight_g/quantity hop le'); return null;\n}\nvar device=String(data.device_id||'SHELF_01_SV3').slice(0,40);\nvar normalized={\n    device_id:device,\n    weight_g:healthy?weight:null,\n    quantity:healthy?Math.max(0,Math.round(qty)):null,\n    alert_status:status,\n    sensor_ok:healthy,\n    led_state:String(data.led_state||'UNKNOWN').slice(0,12),\n    led_muted:data.led_muted===true,\n    uptime_ms:Number.isFinite(Number(data.uptime_ms))?Number(data.uptime_ms):null\n};\nmsg.kind='telemetry';\nmsg.payload=normalized;\n\n// Send Telegram only when the alert state changes; repeated 2-second telemetry is suppressed.\nvar previous=flow.get('sv3_telegram_alert_status');\nvar telegramMsg=null;\nif (status==='LOW_STOCK' || status==='ERR:OBJECT' || status==='SENSOR_ERROR') {\n    if (previous!==status) {\n        telegramMsg={payload:{event:'alert',device_id:device,status:status,\n            weight_g:normalized.weight_g,quantity:normalized.quantity,sensor_ok:healthy,\n            led_state:normalized.led_state}};\n    }\n} else if (status==='OK' && previous && previous!=='OK') {\n    telegramMsg={payload:{event:'recovery',device_id:device,status:'OK',previous_status:previous,\n        weight_g:normalized.weight_g,quantity:normalized.quantity,sensor_ok:healthy,\n        led_state:normalized.led_state}};\n}\nflow.set('sv3_telegram_alert_status',status);\nreturn [msg,telegramMsg];",
+        "outputs": 2,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 440,
-        "y": 120,
+        "x": 760,
+        "y": 260,
         "wires": [
             [
-                "f10000000000000d"
+                "4639c5c3712e4fb6",
+                "17df47d940da4746",
+                "9ce79341df284a18"
             ],
             [
-                "f10000000000000e"
-            ],
-            [
-                "f10000000000000f"
-            ],
-            [
-                "f100000000000010"
+                "1a09f08839dc4e71"
             ]
         ]
     },
     {
-        "id": "f10000000000000c",
+        "id": "9ce79341df284a18",
+        "type": "debug",
+        "z": "2d4d0025f3444c9a",
+        "name": "TEST FULL DEMO: telemetry",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 1070,
+        "y": 175,
+        "wires": []
+    },
+    {
+        "id": "17df47d940da4746",
         "type": "function",
-        "z": "f100000000000001",
-        "name": "Chuẩn hoá status",
-        "func": "const d = msg.payload || {};\nconst online = (d.connection === 'ONLINE');\nmsg.payload = online ? 'ONLINE' : 'OFFLINE';\nmsg.bg = online ? '#2e7d32' : '#c62828';\nreturn msg;\n",
+        "z": "2d4d0025f3444c9a",
+        "name": "Tách khối lượng cho biểu đồ",
+        "func": "var p=msg.payload;\nif(!p.sensor_ok || !Number.isFinite(p.weight_g))return null;\nmsg.payload=p.weight_g;\nmsg.topic='Khối lượng (g)';\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 440,
-        "y": 420,
+        "x": 1010,
+        "y": 230,
         "wires": [
             [
-                "f100000000000011"
+                "3682e51731204f0d"
             ]
         ]
     },
     {
-        "id": "f10000000000000d",
-        "type": "ui_gauge",
-        "z": "f100000000000001",
-        "name": "Khối lượng",
-        "group": "f100000000000006",
-        "order": 1,
-        "width": 6,
-        "height": 4,
-        "gtype": "gage",
-        "title": "Khối lượng (g)",
-        "label": "g",
-        "format": "{{value}}",
-        "min": "0",
-        "max": "2000",
-        "colors": [
-            "#c62828",
-            "#f9a825",
-            "#2e7d32"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "x": 690,
-        "y": 80,
+        "id": "62bf0c274a134f93",
+        "type": "mqtt in",
+        "z": "2d4d0025f3444c9a",
+        "name": "Nhận MQTT LWT status FULL DEMO",
+        "topic": "smartretail/shelves/sv3_demo/status",
+        "qos": "0",
+        "datatype": "utf8",
+        "broker": "10d143fcdfd94c49",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 510,
+        "y": 450,
+        "wires": [
+            [
+                "6833237780ec4046"
+            ]
+        ]
+    },
+    {
+        "id": "6833237780ec4046",
+        "type": "function",
+        "z": "2d4d0025f3444c9a",
+        "name": "Đọc ONLINE/OFFLINE + chống báo giả lúc khởi động",
+        "func": "var p=msg.payload;\nif (Buffer.isBuffer(p)) p=p.toString('utf8');\nif (typeof p!=='string') return null;\np=p.trim().toUpperCase();\nif (p!=='ONLINE' && p!=='OFFLINE') return null;\nvar previous=flow.get('sv3_telegram_mqtt_last');\nvar seenOnline=flow.get('sv3_telegram_seen_online')===true;\nvar telegramMsg=null;\nif (p==='ONLINE') {\n    if (seenOnline && previous==='OFFLINE') {\n        telegramMsg={payload:{event:'reconnected',device_id:'SHELF_01_SV3',status:'ONLINE'}};\n    }\n    flow.set('sv3_telegram_seen_online',true);\n} else if (p==='OFFLINE' && seenOnline && previous!=='OFFLINE') {\n    telegramMsg={payload:{event:'offline',device_id:'SHELF_01_SV3',status:'OFFLINE'}};\n}\nflow.set('sv3_telegram_mqtt_last',p);\nmsg.kind='status';\nmsg.payload=p;\nreturn [msg,telegramMsg];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 450,
+        "wires": [
+            [
+                "4639c5c3712e4fb6",
+                "fa160f58446a4d65"
+            ],
+            [
+                "1a09f08839dc4e71"
+            ]
+        ]
+    },
+    {
+        "id": "fa160f58446a4d65",
+        "type": "debug",
+        "z": "2d4d0025f3444c9a",
+        "name": "TEST FULL DEMO: ONLINE/OFFLINE",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 1070,
+        "y": 465,
         "wires": []
     },
     {
-        "id": "f10000000000000e",
-        "type": "ui_gauge",
-        "z": "f100000000000001",
-        "name": "Số lượng",
-        "group": "f100000000000006",
-        "order": 2,
-        "width": 6,
-        "height": 4,
-        "gtype": "gage",
-        "title": "Số lượng sản phẩm",
-        "label": "sản phẩm",
-        "format": "{{value}}",
-        "min": "0",
-        "max": "10",
-        "colors": [
-            "#c62828",
-            "#f9a825",
-            "#2e7d32"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "x": 690,
-        "y": 200,
+        "id": "4639c5c3712e4fb6",
+        "type": "function",
+        "z": "2d4d0025f3444c9a",
+        "name": "Tổng hợp dữ liệu Dashboard",
+        "func": "var state=flow.get('sv3_enh_team_view')||{\n  has_data:false,weight_g:null,quantity:null,sensor_ok:null,\n  alert_status:'WAITING',led_state:'UNKNOWN',led_muted:false,\n  device_id:'SHELF_01_SV3',connection:'UNVERIFIED',\n  last_data:'--',last_status:'--'\n};\nvar now=new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour12:false});\nif(msg.kind==='telemetry') {\n Object.assign(state,msg.payload);state.has_data=true;state.last_data=now;\n} else if(msg.kind==='status') {\n state.connection=msg.payload;state.last_status=now;\n} else return null;\nflow.set('sv3_enh_team_view',state);\nmsg.payload=Object.assign({},state);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1150,
+        "y": 365,
+        "wires": [
+            [
+                "b2410374260343f3",
+                "0a15629759ca48a2"
+            ]
+        ]
+    },
+    {
+        "id": "7294d9d1769848df",
+        "type": "mqtt in",
+        "z": "2d4d0025f3444c9a",
+        "name": "Nhận phản hồi ACK FULL DEMO",
+        "topic": "smartretail/shelves/sv3_demo/ack",
+        "qos": "0",
+        "datatype": "utf8",
+        "broker": "10d143fcdfd94c49",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 510,
+        "y": 605,
+        "wires": [
+            [
+                "648cfb771dcb45b5"
+            ]
+        ]
+    },
+    {
+        "id": "648cfb771dcb45b5",
+        "type": "function",
+        "z": "2d4d0025f3444c9a",
+        "name": "Đọc phản hồi ESP32",
+        "func": "var p=msg.payload;\nif(Buffer.isBuffer(p))p=p.toString('utf8');\nif(typeof p==='string'){\n if(!p.trim())return null;\n try{p=JSON.parse(p);}catch(e){node.warn('ACK: JSON khong hop le');return null;}\n}\nif(!p || typeof p!=='object'||Array.isArray(p)||!p.command||!p.result)return null;\nmsg.payload={command:String(p.command).slice(0,32),result:String(p.result).slice(0,45),source:String(p.source||'?').slice(0,32),time:new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour12:false})};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 755,
+        "y": 605,
+        "wires": [
+            [
+                "83677efada0f4c22",
+                "55c558233f9b4011"
+            ]
+        ]
+    },
+    {
+        "id": "55c558233f9b4011",
+        "type": "debug",
+        "z": "2d4d0025f3444c9a",
+        "name": "TEST FULL DEMO: ACK",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 1070,
+        "y": 610,
         "wires": []
     },
     {
-        "id": "f10000000000000f",
-        "type": "ui_text",
-        "z": "f100000000000001",
-        "name": "Tồn kho & cảnh báo",
-        "group": "f100000000000006",
-        "order": 3,
-        "width": 6,
-        "height": 1,
-        "label": "Tồn kho",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "className": "",
-        "x": 710,
-        "y": 300,
-        "wires": []
+        "id": "83677efada0f4c22",
+        "type": "function",
+        "z": "2d4d0025f3444c9a",
+        "name": "Lưu 10 ACK gần nhất",
+        "func": "var list=flow.get('sv3_enh_team_ack')||[];\nlist.unshift(msg.payload);if(list.length>10)list=list.slice(0,10);\nflow.set('sv3_enh_team_ack',list);\nmsg.payload={events:list};return msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1015,
+        "y": 690,
+        "wires": [
+            [
+                "ec91a8881e234764"
+            ]
+        ]
     },
     {
-        "id": "f100000000000010",
-        "type": "ui_chart",
-        "z": "f100000000000001",
-        "name": "Lịch sử khối lượng",
-        "group": "f100000000000007",
-        "order": 1,
-        "width": 6,
-        "height": 4,
-        "label": "Khối lượng (g)",
-        "chartType": "line",
-        "legend": "false",
-        "xformat": "HH:mm:ss",
-        "interpolate": "linear",
-        "nodata": "Chưa có dữ liệu",
-        "ymin": "0",
-        "ymax": "2000",
-        "removeOlder": "10",
-        "removeOlderPoints": "",
-        "removeOlderUnit": "60",
-        "cutout": 0,
-        "useOneColor": false,
-        "colors": [
-            "#1f77b4",
-            "#aec7e8",
-            "#ff7f0e",
-            "#2ca02c",
-            "#98df8a",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "useOldStyle": false,
-        "x": 700,
-        "y": 380,
-        "wires": []
-    },
-    {
-        "id": "f100000000000011",
+        "id": "b2410374260343f3",
         "type": "ui_template",
-        "z": "f100000000000001",
-        "group": "f100000000000005",
-        "name": "Kết nối thiết bị",
+        "z": "2d4d0025f3444c9a",
+        "group": "ece6d532c8b444ff",
+        "name": "KPI tải trọng và số lon",
         "order": 1,
         "width": 6,
-        "height": 1,
-        "format": "<div style='text-align:center;padding:10px;border-radius:8px;color:#ffffff;font-size:20px;font-weight:bold;background-color:{{msg.bg}}'>{{msg.payload}}</div>",
+        "height": 5,
+        "format": "<style>\n.sv3t-wrap{color:#e2e8f0;font:13px 'Segoe UI',Arial,sans-serif;padding:5px}\n.sv3t-row{display:flex;gap:12px}\n.sv3t-card{flex:1;min-width:0;border-radius:12px;background:#0f172a;border:1px solid #334155;text-align:center;padding:16px 8px}\n.sv3t-caption{color:#94a3b8;font-size:11px;font-weight:700;letter-spacing:.5px}\n.sv3t-num{font-size:30px;font-weight:800;margin:7px 0}\n.sv3t-track{background:#334155;border-radius:8px;height:12px;overflow:hidden;margin-top:8px}\n.sv3t-track>div{height:100%;background:#22c55e;transition:width .25s}\n</style>\n<div class=\"sv3t-wrap\">\n  <div ng-if=\"!msg.payload.has_data\" style=\"background:#0f172a;padding:24px;text-align:center;border-radius:10px\">Đang chờ telemetry từ Wokwi Enhanced...</div>\n  <div ng-if=\"msg.payload.has_data\">\n   <div class=\"sv3t-row\">\n    <div class=\"sv3t-card\"><div class=\"sv3t-caption\">KHỐI LƯỢNG</div><div class=\"sv3t-num\" style=\"color:#38bdf8\">{{msg.payload.sensor_ok ? (msg.payload.weight_g | number:0) : '—'}}</div><div>gam (g)</div></div>\n    <div class=\"sv3t-card\"><div class=\"sv3t-caption\">TỒN KHO ƯỚC TÍNH</div><div class=\"sv3t-num\" style=\"color:#c084fc\">{{msg.payload.sensor_ok ? msg.payload.quantity : '—'}}</div><div>/ 20 lon</div></div>\n   </div>\n   <div style=\"margin-top:12px;background:#0f172a;border-radius:10px;padding:12px 15px\"><div style=\"display:flex;justify-content:space-between\"><span>Tỷ lệ sử dụng kệ</span><b>{{msg.payload.sensor_ok ? ((msg.payload.quantity/20*100)|number:0)+'%' : '—'}}</b></div>\n    <div class=\"sv3t-track\"><div ng-style=\"{'width':msg.payload.sensor_ok ? (msg.payload.quantity > 20 ? 100 : (msg.payload.quantity < 0 ? 0 : msg.payload.quantity / 20 * 100))+'%' : '0%', 'background':msg.payload.quantity < 3 ? '#ef4444' : '#22c55e'}\"></div></div>\n    <div style=\"font-size:11px;color:#94a3b8;margin-top:6px\">Mô hình: 330 g/lon; cảnh báo khi còn ít hơn 3 lon.</div>\n   </div>\n   <div ng-if=\"msg.payload.alert_status==='ERR:OBJECT'\" style=\"color:#fbbf24;font-size:12px;margin-top:12px\">⚠ Khối lượng bất thường: số lượng là ước tính, chưa xác nhận có dị vật.</div>\n   <div ng-if=\"msg.payload.sensor_ok===false\" style=\"color:#fca5a5;font-size:12px;margin-top:12px\">⚠ HX711 chưa sẵn sàng: không dùng số đo này để kết luận tồn kho.</div>\n  </div>\n</div>",
         "storeOutMessages": true,
-        "fwdInMessages": true,
+        "fwdInMessages": false,
         "resendOnRefresh": true,
         "templateScope": "local",
         "className": "",
-        "x": 680,
-        "y": 500,
+        "x": 1445,
+        "y": 285,
         "wires": [
             []
         ]
     },
     {
-        "id": "f100000000000012",
-        "type": "ui_button",
-        "z": "f100000000000001",
-        "group": "f100000000000008",
-        "name": "Reset cảnh báo",
+        "id": "0a15629759ca48a2",
+        "type": "ui_template",
+        "z": "2d4d0025f3444c9a",
+        "group": "519d56f08f0f4347",
+        "name": "Sức khỏe ESP32 + RGB",
         "order": 1,
         "width": 6,
-        "height": 1,
-        "passthru": false,
-        "label": "RESET CẢNH BÁO",
-        "tooltip": "Tắt LED cảnh báo trong 10 giây",
-        "color": "",
-        "bgcolor": "",
+        "height": 4,
+        "format": "<div style=\"color:#e2e8f0;background:#0f172a;padding:14px;border-radius:12px;font-size:13px\">\n  <div style=\"display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155\"><b>Thiết bị MQTT</b><span style=\"font-weight:700\" ng-style=\"{'color':msg.payload.connection==='ONLINE'?'#4ade80':'#fbbf24'}\">{{msg.payload.connection}}</span></div>\n  <div style=\"display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155\"><b>HX711</b><span ng-style=\"{'color':msg.payload.sensor_ok===true?'#4ade80':'#fbbf24'}\">{{msg.payload.sensor_ok===true?'HOẠT ĐỘNG':(msg.payload.has_data?'CHƯA SẴN SÀNG':'CHỜ DỮ LIỆU')}}</span></div>\n  <div style=\"display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155\"><b>Trạng thái kệ</b><strong ng-style=\"{'color':msg.payload.alert_status==='OK'?'#4ade80':(msg.payload.alert_status==='LOW_STOCK'?'#f87171':'#fbbf24')}\">{{msg.payload.alert_status}}</strong></div>\n  <div style=\"display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155\"><b>LED RGB</b><span><span style=\"display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:7px;vertical-align:middle\" ng-style=\"{'background':msg.payload.led_state==='RED'?'#ef4444':(msg.payload.led_state==='YELLOW'?'#eab308':(msg.payload.led_state==='GREEN'?'#22c55e':(msg.payload.led_state==='BLUE'?'#3b82f6':'#64748b')))}\"></span>{{msg.payload.led_state}}</span></div>\n  <div style=\"display:flex;justify-content:space-between;padding:8px 0\"><b>Telemetry gần nhất</b><span>{{msg.payload.last_data}} (giờ VN)</span></div>\n  <div style=\"font-size:11px;color:#94a3b8;margin-top:5px\">ONLINE là thông điệp MQTT/LWT; thời điểm telemetry dùng để kiểm tra dữ liệu còn mới. Dữ liệu cuối có thể đã cũ khi ngắt mạng.</div>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
         "className": "",
-        "icon": "font-awesome/fa-bell-slash-o",
-        "payload": "",
-        "payloadType": "str",
-        "topic": "topic",
-        "topicType": "str",
-        "x": 670,
-        "y": 580,
+        "x": 1445,
+        "y": 405,
         "wires": [
-            [
-                "f100000000000013"
-            ]
+            []
         ]
     },
     {
-        "id": "f100000000000013",
-        "type": "function",
-        "z": "f100000000000001",
-        "name": "Tạo lệnh RESET_ALERT",
-        "func": "msg.payload = JSON.stringify({ command: 'RESET_ALERT' });\nmsg.qos = 0;\nmsg.retain = false;\nreturn msg;\n",
+        "id": "3682e51731204f0d",
+        "type": "ui_chart",
+        "z": "2d4d0025f3444c9a",
+        "name": "Biểu đồ cân (FULL DEMO)",
+        "group": "8fc4190fe50c4787",
+        "order": 1,
+        "width": 6,
+        "height": 5,
+        "label": "Biến thiên khối lượng (g)",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Chờ dữ liệu cảm biến...",
+        "dot": true,
+        "ymin": "0",
+        "ymax": "6600",
+        "removeOlder": "15",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": true,
+        "useUTC": false,
+        "colors": [
+            "#38bdf8",
+            "#aec7e8",
+            "#ff7f0e"
+        ],
         "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1445,
+        "y": 225,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9b7146e853d04352",
+        "type": "ui_template",
+        "z": "2d4d0025f3444c9a",
+        "group": "dc1b43d852864830",
+        "name": "Hướng dẫn nút TARE",
+        "order": 1,
+        "width": 6,
+        "height": 2,
+        "format": "<div style=\"background:#0f172a;color:#cbd5e1;padding:13px;border-radius:10px;font-size:12px;line-height:1.6\"><b style=\"color:#38bdf8\">ĐIỀU KHIỂN TỪ XA</b><br><b>TARE:</b> Chỉ bấm khi khay cân hoàn toàn trống. Firmware sẽ từ chối nếu còn tải.<br><b>RESET ALERT:</b> Yêu cầu ESP32 tạm tắt LED cảnh báo trong khoảng 10 giây theo firmware.<br>Sau mỗi lệnh, xem ACK thực tế ở bảng bên dưới. Dashboard chỉ hiển thị “đã gửi” cho đến khi ESP32 trả ACK.</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1435,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1162096c578d4dca",
+        "type": "function",
+        "z": "2d4d0025f3444c9a",
+        "name": "Đóng gói lệnh TARE / RESET_ALERT + chờ ACK",
+        "func": "var command=String(msg.payload||'').trim().toUpperCase();\nif (command!=='TARE' && command!=='RESET_ALERT') return null;\nvar now=new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour12:false});\nvar publishMsg={topic:'smartretail/shelves/sv3_demo/commands',\n    payload:JSON.stringify({command:command}),qos:0,retain:false};\nvar historyMsg={payload:{command:command,result:'ĐÃ GỬI (chờ ACK)',source:'DASHBOARD',time:now}};\nreturn [publishMsg,historyMsg];",
+        "outputs": 2,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 900,
-        "y": 580,
+        "x": 815,
+        "y": 765,
         "wires": [
             [
-                "f100000000000014"
+                "42d0f18b81ad4aad"
+            ],
+            [
+                "83677efada0f4c22"
             ]
         ]
     },
     {
-        "id": "f100000000000014",
+        "id": "5195d1ea89274f59",
+        "type": "ui_button",
+        "z": "2d4d0025f3444c9a",
+        "name": "TARE từ Dashboard",
+        "group": "dc1b43d852864830",
+        "order": 2,
+        "width": 3,
+        "height": 1,
+        "passthru": false,
+        "label": "TARE (KỆ TRỐNG)",
+        "tooltip": "Chỉ hiệu chuẩn khi khay cân hoàn toàn trống.",
+        "color": "#ffffff",
+        "bgcolor": "#2563eb",
+        "className": "",
+        "icon": "fa-balance-scale",
+        "payload": "TARE",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 500,
+        "y": 760,
+        "wires": [
+            [
+                "1162096c578d4dca"
+            ]
+        ]
+    },
+    {
+        "id": "42d0f18b81ad4aad",
         "type": "mqtt out",
-        "z": "f100000000000001",
-        "name": "Gửi lệnh xuống ESP32",
-        "topic": "smartretail/shelves/shelf_01/commands",
+        "z": "2d4d0025f3444c9a",
+        "name": "MQTT gửi TARE / RESET_ALERT",
+        "topic": "smartretail/shelves/sv3_demo/commands",
         "qos": "0",
         "retain": "false",
         "respTopic": "",
@@ -392,40 +410,352 @@
         "userProps": "",
         "correl": "",
         "expiry": "",
-        "broker": "f100000000000002",
-        "x": 1130,
-        "y": 580,
+        "broker": "10d143fcdfd94c49",
+        "x": 1045,
+        "y": 810,
         "wires": []
     },
     {
-        "id": "f100000000000015",
+        "id": "ec91a8881e234764",
         "type": "ui_template",
-        "z": "f100000000000001",
-        "group": "f100000000000008",
-        "name": "Ghi chú RESET",
-        "order": 2,
+        "z": "2d4d0025f3444c9a",
+        "group": "dc1b43d852864830",
+        "name": "Bảng xác nhận ACK",
+        "order": 4,
         "width": 6,
-        "height": 2,
-        "format": "<div style='font-size:13px;color:#555555;line-height:1.5;'>Nhấn <b>RESET CẢNH BÁO</b> để tắt LED cảnh báo trong 10 giây. Dữ liệu tồn kho và lịch sử khối lượng không bị xóa.</div>",
+        "height": 3,
+        "format": "<div style=\"background:#0f172a;color:#e2e8f0;padding:12px;border-radius:10px;font-size:12px\">\n<div style=\"font-weight:700;color:#38bdf8;margin-bottom:8px\">10 HOẠT ĐỘNG / ACK GẦN NHẤT</div>\n<div ng-if=\"!msg.payload.events || !msg.payload.events.length\" style=\"color:#94a3b8\">Chưa có hoạt động. TARE hoặc RESET_ALERT để bắt đầu.</div>\n<div ng-repeat=\"a in msg.payload.events track by $index\" style=\"padding:7px 0;border-bottom:1px solid #334155\">\n<span style=\"color:#94a3b8\">{{a.time}}</span> · <b>{{a.command}}</b> ·\n<strong ng-style=\"{'color':a.result==='SUCCESS'?'#4ade80':(a.result.indexOf('ĐÃ GỬI')===0?'#fbbf24':'#fca5a5')}\">{{a.result}}</strong>\n<span style=\"color:#94a3b8\">({{a.source}})</span>\n</div></div>",
         "storeOutMessages": true,
-        "fwdInMessages": true,
+        "fwdInMessages": false,
         "resendOnRefresh": true,
         "templateScope": "local",
         "className": "",
-        "x": 670,
-        "y": 680,
+        "x": 1435,
+        "y": 720,
         "wires": [
             []
         ]
     },
     {
-        "id": "f100000000000016",
-        "type": "comment",
-        "z": "f100000000000001",
-        "name": "HƯỚNG DẪN CÀI ĐẶT",
-        "info": "Cài đặt:\n1. npm install -g node-red\n2. cd ~/.node-red && npm install node-red-dashboard\n3. node-red\n4. Import flow này và Deploy\n\nDashboard: http://localhost:1880/ui\nBroker: broker.hivemq.com:1883\n\nTopic telemetry: smartretail/shelves/shelf_01/telemetry\nTopic status: smartretail/shelves/shelf_01/status\nTopic commands: smartretail/shelves/shelf_01/commands",
-        "x": 160,
-        "y": 40,
+        "id": "dd998538984c4952",
+        "type": "ui_button",
+        "z": "2d4d0025f3444c9a",
+        "name": "RESET ALERT từ Dashboard",
+        "group": "dc1b43d852864830",
+        "order": 3,
+        "width": 3,
+        "height": 1,
+        "passthru": false,
+        "label": "RESET ALERT (TẮT LED 10 GIÂY)",
+        "tooltip": "Gửi RESET_ALERT qua MQTT và chờ ACK từ ESP32.",
+        "color": "#ffffff",
+        "bgcolor": "#dc2626",
+        "className": "",
+        "icon": "",
+        "payload": "RESET_ALERT",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 525,
+        "y": 825,
+        "wires": [
+            [
+                "1162096c578d4dca"
+            ]
+        ]
+    },
+    {
+        "id": "244510a4275a4e86",
+        "type": "ui_template",
+        "z": "2d4d0025f3444c9a",
+        "group": "d27fa7c816c143e8",
+        "name": "Hướng dẫn cấu hình Telegram an toàn",
+        "order": 1,
+        "width": 6,
+        "height": 4,
+        "format": "<div style=\"background:#0f172a;color:#cbd5e1;padding:13px;border-radius:10px;font-size:12px;line-height:1.65\"><b style=\"color:#38bdf8\">CẤU HÌNH TELEGRAM</b><br>Flow đọc thông tin từ biến môi trường Node-RED:<br><code>TELEGRAM_BOT_TOKEN</code> và <code>TELEGRAM_CHAT_ID</code>.<br>Không nhập token vào file JSON và không chia sẻ token qua ảnh chụp màn hình. Sau khi thêm 2 biến môi trường vào container Node-RED, hãy khởi động lại container rồi bấm nút kiểm tra bên dưới.<br><span style=\"color:#fbbf24\">Nếu chưa cấu hình, bảng kết quả sẽ báo thiếu biến môi trường.</span></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 335,
+        "y": 115,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a444e815eb794032",
+        "type": "ui_button",
+        "z": "2d4d0025f3444c9a",
+        "name": "Gửi tin nhắn thử Telegram",
+        "group": "d27fa7c816c143e8",
+        "order": 2,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "GỬI TIN NHẮN THỬ TELEGRAM",
+        "tooltip": "Gửi một tin nhắn kiểm tra tới Chat ID đã cấu hình.",
+        "color": "#ffffff",
+        "bgcolor": "#0ea5e9",
+        "className": "",
+        "icon": "send",
+        "payload": "TEST_TELEGRAM",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 535,
+        "y": 1095,
+        "wires": [
+            [
+                "ae4d29e6700a4a99"
+            ]
+        ]
+    },
+    {
+        "id": "ae4d29e6700a4a99",
+        "type": "function",
+        "z": "2d4d0025f3444c9a",
+        "name": "Tạo sự kiện kiểm tra Telegram",
+        "func": "msg.payload={event:'test',device_id:'SHELF_01_SV3'}; return msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 805,
+        "y": 1095,
+        "wires": [
+            [
+                "1a09f08839dc4e71"
+            ]
+        ]
+    },
+    {
+        "id": "1a09f08839dc4e71",
+        "type": "function",
+        "z": "2d4d0025f3444c9a",
+        "name": "Soạn cảnh báo Telegram (không lưu token trong flow)",
+        "func": "const token = env.get(\"TELEGRAM_BOT_TOKEN\");\nconst chatId = env.get(\"TELEGRAM_CHAT_ID\");\nconst p=msg.payload||{};\nconst now=new Date().toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'});\nconst device=String(p.device_id||'SHELF_01_SV3');\nlet text='';\nif (p.event==='test') {\n    text='🧪 SMART SHELF SV3 - TEST TELEGRAM\\nBot và Chat ID đã được cấu hình. Node-RED gửi tin nhắn thử thành công.\\nThiết bị: '+device+'\\nThời gian: '+now;\n} else if (p.event==='offline') {\n    text='🔴 SMART SHELF SV3 - MẤT KẾT NỐI\\nThiết bị: '+device+'\\nMQTT status: OFFLINE\\nKiểm tra Wi-Fi, ESP32 và kết nối HiveMQ.\\nThời gian: '+now;\n} else if (p.event==='reconnected') {\n    text='🟢 SMART SHELF SV3 - ĐÃ KẾT NỐI LẠI\\nThiết bị: '+device+'\\nMQTT status: ONLINE\\nThiết bị đã kết nối lại với broker.\\nThời gian: '+now;\n} else if (p.event==='recovery') {\n    text='✅ SMART SHELF SV3 - TRẠNG THÁI ĐÃ PHỤC HỒI\\nThiết bị: '+device+'\\nTrạng thái: OK (trước đó: '+String(p.previous_status||'ALERT')+')\\nSố lượng: '+String(p.quantity==null?'--':p.quantity)+' lon\\nKhối lượng: '+String(p.weight_g==null?'--':p.weight_g)+' g\\nThời gian: '+now;\n} else if (p.event==='alert' && p.status==='LOW_STOCK') {\n    text='🚨 SMART SHELF SV3 - CẢNH BÁO TỒN KHO THẤP\\nThiết bị: '+device+'\\nTrạng thái: LOW_STOCK\\nSố lượng: '+String(p.quantity==null?'--':p.quantity)+' lon\\nKhối lượng: '+String(p.weight_g==null?'--':p.weight_g)+' g\\nVui lòng kiểm tra và bổ sung hàng.\\nThời gian: '+now;\n} else if (p.event==='alert' && p.status==='ERR:OBJECT') {\n    text='⚠️ SMART SHELF SV3 - KHỐI LƯỢNG BẤT THƯỜNG\\nThiết bị: '+device+'\\nTrạng thái: ERR:OBJECT\\nKhối lượng: '+String(p.weight_g==null?'--':p.weight_g)+' g\\nSố lượng ước tính: '+String(p.quantity==null?'--':p.quantity)+' lon\\nKiểm tra vật thể/dị vật và cách đặt hàng trên kệ.\\nThời gian: '+now;\n} else if (p.event==='alert' && p.status==='SENSOR_ERROR') {\n    text='🛠️ SMART SHELF SV3 - LỖI CẢM BIẾN\\nThiết bị: '+device+'\\nTrạng thái: SENSOR_ERROR\\nHX711 không sẵn sàng hoặc cảm biến đang báo lỗi.\\nKhông sử dụng số đo hiện tại để kết luận tồn kho.\\nThời gian: '+now;\n} else {\n    return null;\n}\nif (!token || !chatId) {\n    node.warn('Telegram chua cau hinh TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID');\n    return [null,{payload:{telegram_ok:false,http_status:0,detail:'Chưa cấu hình TELEGRAM_BOT_TOKEN và/hoặc TELEGRAM_CHAT_ID trong môi trường Node-RED Docker.',event:String(p.event||'alert'),time:now,text:text}}];\n}\nmsg.url='https://api.telegram.org/bot'+token+'/sendMessage';\nmsg.method='POST';\nmsg.headers={'Content-Type':'application/json'};\nmsg.telegram_event=String(p.event||'alert');\nmsg.telegram_text=text;\nmsg.payload={chat_id:String(chatId),text:text,disable_web_page_preview:true};\nreturn [msg,null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1095,
+        "y": 1055,
+        "wires": [
+            [
+                "d7380b9d24784740"
+            ],
+            [
+                "25a7d85599c2479a",
+                "ea1871eb2c0d4896"
+            ]
+        ]
+    },
+    {
+        "id": "d7380b9d24784740",
+        "type": "http request",
+        "z": "2d4d0025f3444c9a",
+        "name": "Gửi Telegram Bot API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1365,
+        "y": 1015,
+        "wires": [
+            [
+                "b5468fe1a19b4477"
+            ]
+        ]
+    },
+    {
+        "id": "b5468fe1a19b4477",
+        "type": "function",
+        "z": "2d4d0025f3444c9a",
+        "name": "Đọc kết quả Telegram (ẩn token)",
+        "func": "var body=msg.payload||{};\nvar ok=msg.statusCode===200 && body.ok===true;\nvar detail=ok?'Telegram đã gửi thành công.':String(body.description||('Telegram API trả HTTP '+String(msg.statusCode||'không rõ')));\nreturn {payload:{telegram_ok:ok,http_status:Number(msg.statusCode)||0,detail:detail,\n    event:String(msg.telegram_event||'alert'),time:new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour12:false}),\n    text:String(msg.telegram_text||'')}};",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1615,
+        "y": 1015,
+        "wires": [
+            [
+                "25a7d85599c2479a",
+                "ea1871eb2c0d4896"
+            ]
+        ]
+    },
+    {
+        "id": "ea1871eb2c0d4896",
+        "type": "debug",
+        "z": "2d4d0025f3444c9a",
+        "name": "Telegram HTTP result (safe)",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1865,
+        "y": 1065,
         "wires": []
+    },
+    {
+        "id": "25a7d85599c2479a",
+        "type": "ui_template",
+        "z": "2d4d0025f3444c9a",
+        "group": "d27fa7c816c143e8",
+        "name": "Kết quả gửi Telegram",
+        "order": 3,
+        "width": 6,
+        "height": 4,
+        "format": "<div style=\"background:#0f172a;color:#e2e8f0;padding:13px;border-radius:10px;font-size:12px;line-height:1.6\">\n<div style=\"font-weight:700;color:#38bdf8;margin-bottom:8px\">KẾT QUẢ TELEGRAM</div>\n<div ng-if=\"!msg.payload || msg.payload.telegram_ok===undefined\" style=\"color:#94a3b8\">Chưa có kết quả gửi Telegram. Hãy cấu hình biến môi trường rồi bấm nút kiểm tra.</div>\n<div ng-if=\"msg.payload.telegram_ok===true\" style=\"color:#4ade80;font-weight:700\">✓ GỬI THÀNH CÔNG</div>\n<div ng-if=\"msg.payload.telegram_ok===false\" style=\"color:#fca5a5;font-weight:700\">✕ CHƯA GỬI ĐƯỢC</div>\n<div ng-if=\"msg.payload.telegram_ok!==undefined\" style=\"margin-top:6px\">{{msg.payload.detail}}<br><span style=\"color:#94a3b8\">HTTP: {{msg.payload.http_status}} · {{msg.payload.time}}</span></div>\n<div ng-if=\"msg.payload.text\" style=\"margin-top:8px;padding-top:8px;border-top:1px solid #334155;white-space:pre-line\">{{msg.payload.text}}</div>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 335,
+        "y": 115,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b3459527189345fe",
+        "type": "catch",
+        "z": "2d4d0025f3444c9a",
+        "name": "Bắt lỗi HTTP Telegram",
+        "scope": [
+            "d7380b9d24784740"
+        ],
+        "uncaught": false,
+        "x": 1375,
+        "y": 1155,
+        "wires": [
+            [
+                "bb16559f7e2d4d49"
+            ]
+        ]
+    },
+    {
+        "id": "bb16559f7e2d4d49",
+        "type": "function",
+        "z": "2d4d0025f3444c9a",
+        "name": "Chuẩn hóa lỗi Telegram (không lộ token)",
+        "func": "var detail=(msg.error && msg.error.message)?String(msg.error.message):'Không thể kết nối Telegram API.';\ndetail=detail.replace(/https?:\\/\\/api\\.telegram\\.org\\/bot[^\\s/]+/gi,'Telegram API URL [ĐÃ ẨN TOKEN]');\nreturn {payload:{telegram_ok:false,http_status:Number(msg.statusCode)||0,detail:detail.slice(0,220),\n    event:String(msg.telegram_event||'alert'),time:new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour12:false}),\n    text:String(msg.telegram_text||'')}};",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1615,
+        "y": 1155,
+        "wires": [
+            [
+                "25a7d85599c2479a",
+                "ea1871eb2c0d4896"
+            ]
+        ]
+    },
+    {
+        "id": "10d143fcdfd94c49",
+        "type": "mqtt-broker",
+        "name": "HiveMQ SV3 Team Demo",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true
+    },
+    {
+        "id": "ece6d532c8b444ff",
+        "type": "ui_group",
+        "name": "01 | Cân và tồn kho",
+        "tab": "d63701a8aaac4e51",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "519d56f08f0f4347",
+        "type": "ui_group",
+        "name": "02 | Trạng thái cảm biến",
+        "tab": "d63701a8aaac4e51",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "8fc4190fe50c4787",
+        "type": "ui_group",
+        "name": "03 | Lịch sử tải trọng",
+        "tab": "d63701a8aaac4e51",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "dc1b43d852864830",
+        "type": "ui_group",
+        "name": "04 | Hiệu chuẩn và phản hồi",
+        "tab": "d63701a8aaac4e51",
+        "order": 4,
+        "disp": true,
+        "width": 6,
+        "collapse": false
+    },
+    {
+        "id": "d27fa7c816c143e8",
+        "type": "ui_group",
+        "name": "05 | CẢNH BÁO TELEGRAM",
+        "tab": "d63701a8aaac4e51",
+        "order": 5,
+        "disp": true,
+        "width": 6,
+        "collapse": false
+    },
+    {
+        "id": "d63701a8aaac4e51",
+        "type": "ui_tab",
+        "name": "Smart Shelf SV3 - Full Demo",
+        "icon": "fa-cubes",
+        "order": 35,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "541d2e36eb6e950d",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
     }
 ]
