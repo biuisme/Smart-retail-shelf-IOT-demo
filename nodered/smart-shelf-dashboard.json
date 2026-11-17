@@ -1,0 +1,431 @@
+[
+    {
+        "id": "f100000000000001",
+        "type": "tab",
+        "label": "Kệ hàng thông minh",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "f100000000000002",
+        "type": "mqtt-broker",
+        "name": "HiveMQ Public",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "f100000000000003",
+        "type": "ui_base",
+        "name": "Kệ hàng thông minh",
+        "hideToolbar": "false",
+        "allowSwipe": "false",
+        "lockMenu": "false",
+        "allowTempTheme": "true",
+        "dateFormat": "DD/MM/YYYY",
+        "theme": {
+            "name": "theme-custom",
+            "baseColor": "#0094CE",
+            "pageBackgroundColor": "#f2f4f7",
+            "groupBackgroundColor": "#ffffff",
+            "groupTextColor": "#0f172a",
+            "groupBorderColor": "#e2e8f0",
+            "groupBoxShadow": false,
+            "pageTitle": "Kệ hàng thông minh báo tồn kho",
+            "header": "Kệ hàng thông minh báo tồn kho",
+            "menu": "Menu"
+        },
+        "site": {
+            "name": "Kệ hàng thông minh",
+            "hideTabIcon": false
+        }
+    },
+    {
+        "id": "f100000000000004",
+        "type": "ui_tab",
+        "label": "Kệ hàng thông minh",
+        "icon": "font-awesome/fa-cubes",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "f100000000000005",
+        "type": "ui_group",
+        "name": "Trạng thái thiết bị",
+        "tab": "f100000000000004",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f100000000000006",
+        "type": "ui_group",
+        "name": "Tồn kho",
+        "tab": "f100000000000004",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f100000000000007",
+        "type": "ui_group",
+        "name": "Lịch sử khối lượng",
+        "tab": "f100000000000004",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f100000000000008",
+        "type": "ui_group",
+        "name": "Điều khiển",
+        "tab": "f100000000000004",
+        "order": 4,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f100000000000009",
+        "type": "mqtt in",
+        "z": "f100000000000001",
+        "name": "Telemetry ESP32",
+        "topic": "smartretail/shelves/shelf_01/telemetry",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "f100000000000002",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 120,
+        "wires": [
+            [
+                "f10000000000000b"
+            ]
+        ]
+    },
+    {
+        "id": "f10000000000000a",
+        "type": "mqtt in",
+        "z": "f100000000000001",
+        "name": "Status ONLINE/OFFLINE",
+        "topic": "smartretail/shelves/shelf_01/status",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "f100000000000002",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 200,
+        "y": 420,
+        "wires": [
+            [
+                "f10000000000000c"
+            ]
+        ]
+    },
+    {
+        "id": "f10000000000000b",
+        "type": "function",
+        "z": "f100000000000001",
+        "name": "Chuẩn hoá telemetry",
+        "func": "// msg.payload đã được node MQTT parse từ JSON\nconst d = msg.payload || {};\n\n// Bỏ qua dữ liệu của thiết bị khác\nif (d.device_id && d.device_id !== 'shelf_01') {\n    return null;\n}\n\nconst weight = Number(d.weight_g);\nconst qty = Number(d.quantity);\nconst alert = String(d.alert_status || 'UNKNOWN');\n\nif (!isFinite(weight) || !isFinite(qty)) {\n    return null;\n}\n\nlet alertText = 'BÌNH THƯỜNG';\nif (alert === 'LOW_STOCK') {\n    alertText = 'TỒN KHO THẤP';\n} else if (alert === 'ERR:OBJECT') {\n    alertText = 'SAI KHỐI LƯỢNG';\n}\n\nconst timeText = new Date().toLocaleTimeString('vi-VN', { hour12: false });\n\nreturn [\n    { payload: weight },\n    { payload: qty },\n    { payload: qty + ' sản phẩm · ' + alertText + ' · ' + timeText },\n    { payload: weight, topic: d.device_id || 'shelf_01' }\n];\n",
+        "outputs": 4,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 120,
+        "wires": [
+            [
+                "f10000000000000d"
+            ],
+            [
+                "f10000000000000e"
+            ],
+            [
+                "f10000000000000f"
+            ],
+            [
+                "f100000000000010"
+            ]
+        ]
+    },
+    {
+        "id": "f10000000000000c",
+        "type": "function",
+        "z": "f100000000000001",
+        "name": "Chuẩn hoá status",
+        "func": "const d = msg.payload || {};\nconst online = (d.connection === 'ONLINE');\nmsg.payload = online ? 'ONLINE' : 'OFFLINE';\nmsg.bg = online ? '#2e7d32' : '#c62828';\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 420,
+        "wires": [
+            [
+                "f100000000000011"
+            ]
+        ]
+    },
+    {
+        "id": "f10000000000000d",
+        "type": "ui_gauge",
+        "z": "f100000000000001",
+        "name": "Khối lượng",
+        "group": "f100000000000006",
+        "order": 1,
+        "width": 6,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Khối lượng (g)",
+        "label": "g",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "2000",
+        "colors": [
+            "#c62828",
+            "#f9a825",
+            "#2e7d32"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 690,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "f10000000000000e",
+        "type": "ui_gauge",
+        "z": "f100000000000001",
+        "name": "Số lượng",
+        "group": "f100000000000006",
+        "order": 2,
+        "width": 6,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Số lượng sản phẩm",
+        "label": "sản phẩm",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "10",
+        "colors": [
+            "#c62828",
+            "#f9a825",
+            "#2e7d32"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 690,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "f10000000000000f",
+        "type": "ui_text",
+        "z": "f100000000000001",
+        "name": "Tồn kho & cảnh báo",
+        "group": "f100000000000006",
+        "order": 3,
+        "width": 6,
+        "height": 1,
+        "label": "Tồn kho",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 710,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "f100000000000010",
+        "type": "ui_chart",
+        "z": "f100000000000001",
+        "name": "Lịch sử khối lượng",
+        "group": "f100000000000007",
+        "order": 1,
+        "width": 6,
+        "height": 4,
+        "label": "Khối lượng (g)",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Chưa có dữ liệu",
+        "ymin": "0",
+        "ymax": "2000",
+        "removeOlder": "10",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "x": 700,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "f100000000000011",
+        "type": "ui_template",
+        "z": "f100000000000001",
+        "group": "f100000000000005",
+        "name": "Kết nối thiết bị",
+        "order": 1,
+        "width": 6,
+        "height": 1,
+        "format": "<div style='text-align:center;padding:10px;border-radius:8px;color:#ffffff;font-size:20px;font-weight:bold;background-color:{{msg.bg}}'>{{msg.payload}}</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 680,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f100000000000012",
+        "type": "ui_button",
+        "z": "f100000000000001",
+        "group": "f100000000000008",
+        "name": "Reset cảnh báo",
+        "order": 1,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "RESET CẢNH BÁO",
+        "tooltip": "Tắt LED cảnh báo trong 10 giây",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "font-awesome/fa-bell-slash-o",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "str",
+        "x": 670,
+        "y": 580,
+        "wires": [
+            [
+                "f100000000000013"
+            ]
+        ]
+    },
+    {
+        "id": "f100000000000013",
+        "type": "function",
+        "z": "f100000000000001",
+        "name": "Tạo lệnh RESET_ALERT",
+        "func": "msg.payload = JSON.stringify({ command: 'RESET_ALERT' });\nmsg.qos = 0;\nmsg.retain = false;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 580,
+        "wires": [
+            [
+                "f100000000000014"
+            ]
+        ]
+    },
+    {
+        "id": "f100000000000014",
+        "type": "mqtt out",
+        "z": "f100000000000001",
+        "name": "Gửi lệnh xuống ESP32",
+        "topic": "smartretail/shelves/shelf_01/commands",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f100000000000002",
+        "x": 1130,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "f100000000000015",
+        "type": "ui_template",
+        "z": "f100000000000001",
+        "group": "f100000000000008",
+        "name": "Ghi chú RESET",
+        "order": 2,
+        "width": 6,
+        "height": 2,
+        "format": "<div style='font-size:13px;color:#555555;line-height:1.5;'>Nhấn <b>RESET CẢNH BÁO</b> để tắt LED cảnh báo trong 10 giây. Dữ liệu tồn kho và lịch sử khối lượng không bị xóa.</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 670,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f100000000000016",
+        "type": "comment",
+        "z": "f100000000000001",
+        "name": "HƯỚNG DẪN CÀI ĐẶT",
+        "info": "Cài đặt:\n1. npm install -g node-red\n2. cd ~/.node-red && npm install node-red-dashboard\n3. node-red\n4. Import flow này và Deploy\n\nDashboard: http://localhost:1880/ui\nBroker: broker.hivemq.com:1883\n\nTopic telemetry: smartretail/shelves/shelf_01/telemetry\nTopic status: smartretail/shelves/shelf_01/status\nTopic commands: smartretail/shelves/shelf_01/commands",
+        "x": 160,
+        "y": 40,
+        "wires": []
+    }
+]

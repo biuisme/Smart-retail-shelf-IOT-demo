@@ -1,0 +1,35 @@
+# ===== Arduino / PlatformIO =====
+.pio/
+.pioenvs/
+.piolibdeps/
+build/
+*.bin
+*.elf
+*.hex
+*.map
+*.d
+*.o
+
+# ===== Thông tin bí mật (không commit) =====
+secrets.h
+.env
+.env.*
+
+# ===== Node-RED =====
+node_modules/
+flows_cred.json
+.data/
+.storage/
+
+# ===== VS Code =====
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ===== Hệ điều hành / file tạm =====
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+*.bak
